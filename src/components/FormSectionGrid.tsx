@@ -15,6 +15,7 @@ import {
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import ValidationRuleEditor from "./ValidationRuleEditor";
+import DeadlinesSection from "./DeadlinesSection";
 
 interface FieldDef {
   label: string;
@@ -136,6 +137,10 @@ const sections: Section[] = [
     ],
   },
   {
+    title: "Deadlines",
+    fields: [],
+  },
+  {
     title: "Field Validation Rules",
     fields: [],
   },
@@ -171,6 +176,12 @@ export default function FormSectionGrid({
           <Box id={sectionId(section.title)} sx={{ gridColumn: "1 / -1" }}>
             <Typography variant="h5">{section.title}</Typography>
           </Box>
+
+          {section.title === "Deadlines" && (
+            <Box sx={{ gridColumn: "1 / -1" }}>
+              <DeadlinesSection isEditing={isEditing} />
+            </Box>
+          )}
 
           {section.title === "Field Validation Rules" && (
             <Box sx={{ gridColumn: "1 / -1" }}>
