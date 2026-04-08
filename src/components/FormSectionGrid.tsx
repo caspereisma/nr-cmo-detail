@@ -149,7 +149,7 @@ interface FormSectionGridProps {
 }
 
 export default function FormSectionGrid({
-  activeSectionIndex,
+  activeSectionIndex: _activeSectionIndex,
   isEditing = false,
   onCmoNameChange,
   onCmoTypeChange,
