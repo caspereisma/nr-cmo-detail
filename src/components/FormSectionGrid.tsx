@@ -63,6 +63,14 @@ const sections: Section[] = [
       {
         label: "Claim Method",
         value: "AGENT,EXCLUSIVE_LICENSE",
+        type: "checkboxGroup",
+        options: [
+          "AGENT",
+          "EXCLUSIVE_LICENSE",
+          "NON_EXCLUSIVE_LICENSE",
+          "DIRECT_LICENSE",
+          "MANDATE",
+        ],
       },
       {
         label: "Export Type",

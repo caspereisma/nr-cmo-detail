@@ -116,10 +116,10 @@ function formatNextDue(d: Deadline): { date: string; countdown: string } {
 function makeDeadline(): Deadline {
   return {
     id: crypto.randomUUID(),
-    type: "Asset registrations",
+    type: "",
     repeats: "Annually",
-    month: "March",
-    day: "31",
+    month: "",
+    day: "",
   };
 }
 
@@ -266,10 +266,11 @@ export default function DeadlinesSection({ isEditing }: Props) {
 
       {isEditing && (
         <Button
+          variant="text"
+          size="medium"
           startIcon={<AddIcon />}
-          size="small"
           onClick={add}
-          sx={{ alignSelf: "flex-start", mt: 0.5, color: "primary.main" }}
+          sx={{ alignSelf: "flex-start", mt: 0.5 }}
         >
           Add deadline
         </Button>

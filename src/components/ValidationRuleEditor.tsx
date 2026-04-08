@@ -340,7 +340,7 @@ function ValidationSubsection({
                   sx={{ borderBottom: "none", p: 2 }}
                 >
                   <Button
-                    variant="outlined"
+                    variant="text"
                     size="medium"
                     startIcon={<AddIcon />}
                     onClick={addRow}
