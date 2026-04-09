@@ -25,6 +25,7 @@ interface PageHeaderProps {
   onCancel: () => void;
   cmoName: string;
   cmoType: string;
+  onBackToOverview?: () => void;
 }
 
 export default function PageHeader({
@@ -36,6 +37,7 @@ export default function PageHeader({
   onCancel,
   cmoName,
   cmoType,
+  onBackToOverview,
 }: PageHeaderProps) {
   const displayType = formatType(cmoType);
 
@@ -63,7 +65,8 @@ export default function PageHeader({
                 underline="hover"
                 color="text.primary"
                 href="#"
-                sx={{ fontSize: "1rem" }}
+                sx={{ fontSize: "1rem", cursor: "pointer" }}
+                onClick={(e) => { e.preventDefault(); onBackToOverview?.(); }}
               >
                 CMOs Catalog
               </Link>

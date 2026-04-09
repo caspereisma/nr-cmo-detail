@@ -14,7 +14,11 @@ function getFieldValue(label: string): string {
   return "";
 }
 
-export default function CmoDetailPage() {
+interface CmoDetailPageProps {
+  onNavigateBack?: () => void;
+}
+
+export default function CmoDetailPage({ onNavigateBack }: CmoDetailPageProps) {
   const [activeTab, setActiveTab] = useState(0);
   const [activeSection, setActiveSection] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -52,7 +56,7 @@ export default function CmoDetailPage() {
         bgcolor: "white",
       }}
     >
-      <NrAppBar />
+      <NrAppBar activeTab={0} onNavClick={(i) => { if (i === 0) onNavigateBack?.(); }} />
 
       <Box sx={{ px: 2, display: "flex", flexDirection: "column", flex: 1 }}>
         <PageHeader
@@ -64,6 +68,7 @@ export default function CmoDetailPage() {
           onCancel={handleCancel}
           cmoName={cmoName}
           cmoType={cmoType}
+          onBackToOverview={onNavigateBack}
         />
 
         <Box sx={{ display: "flex", gap: 4, flex: 1 }}>

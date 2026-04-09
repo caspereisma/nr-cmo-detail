@@ -20,7 +20,12 @@ const navItems = [
   { label: "EVENTS", hasDropdown: false },
 ];
 
-export default function NrAppBar() {
+interface NrAppBarProps {
+  activeTab?: number;
+  onNavClick?: (index: number) => void;
+}
+
+export default function NrAppBar({ activeTab = 0, onNavClick }: NrAppBarProps) {
   return (
     <AppBar
       position="static"
@@ -92,7 +97,7 @@ export default function NrAppBar() {
 
           {/* Navigation Tabs */}
           <Tabs
-            value={0}
+            value={activeTab}
             textColor="inherit"
             TabIndicatorProps={{
               sx: { bgcolor: "#eee", height: 2 },
@@ -110,7 +115,7 @@ export default function NrAppBar() {
               },
             }}
           >
-            {navItems.map((item) => (
+            {navItems.map((item, index) => (
               <Tab
                 key={item.label}
                 label={item.label}
@@ -122,6 +127,7 @@ export default function NrAppBar() {
                   ) : undefined
                 }
                 iconPosition="end"
+                onClick={() => onNavClick?.(index)}
               />
             ))}
           </Tabs>
