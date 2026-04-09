@@ -38,31 +38,18 @@ export default function NrAppBar({ activeTab = 0, onNavClick }: NrAppBarProps) {
             sx={{
               display: "flex",
               alignItems: "center",
+              alignSelf: "stretch",
               gap: "6px",
               bgcolor: "black",
-              pr: 1,
+              px: 1,
             }}
           >
             <Box
-              sx={{
-                width: 44,
-                height: 32,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Typography
-                sx={{
-                  color: "white",
-                  fontSize: 18,
-                  fontWeight: 700,
-                  fontFamily: "'Nunito Sans', sans-serif",
-                }}
-              >
-                NR
-              </Typography>
-            </Box>
+              component="img"
+              src={`${import.meta.env.BASE_URL}downtown-logo.svg`}
+              alt="Downtown logo"
+              sx={{ width: 23, height: 26, flexShrink: 0 }}
+            />
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Typography
                 sx={{
