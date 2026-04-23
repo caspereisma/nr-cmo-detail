@@ -26,6 +26,7 @@ interface PageHeaderProps {
   cmoName: string;
   cmoType: string;
   onBackToOverview?: () => void;
+  mode?: "view" | "create";
 }
 
 export default function PageHeader({
@@ -38,8 +39,16 @@ export default function PageHeader({
   cmoName,
   cmoType,
   onBackToOverview,
+  mode = "view",
 }: PageHeaderProps) {
-  const displayType = formatType(cmoType);
+  const isCreate = mode === "create";
+  const displayType = cmoType ? formatType(cmoType) : "";
+  const title = isCreate
+    ? "New CMO"
+    : displayType
+      ? `${cmoName} (${displayType})`
+      : cmoName;
+  const trailingCrumb = isCreate ? "New CMO" : cmoName;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
@@ -68,7 +77,7 @@ export default function PageHeader({
                 sx={{ fontSize: "1rem", cursor: "pointer" }}
                 onClick={(e) => { e.preventDefault(); onBackToOverview?.(); }}
               >
-                CMOs Catalog
+                CMOs
               </Link>
               <Link
                 underline="hover"
@@ -76,17 +85,15 @@ export default function PageHeader({
                 href="#"
                 sx={{ fontSize: "1rem" }}
               >
-                {cmoName}
+                {trailingCrumb}
               </Link>
             </Breadcrumbs>
 
-            {/* Title derived from CMO Name + Type fields */}
-            <Typography variant="h4">
-              {cmoName} ({displayType})
-            </Typography>
+            {/* Title */}
+            <Typography variant="h4">{title}</Typography>
           </Box>
 
-          {/* Edit / Save+Cancel buttons */}
+          {/* Action buttons — Save+Cancel while editing (or creating), otherwise Edit */}
           <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
             {isEditing ? (
               <>

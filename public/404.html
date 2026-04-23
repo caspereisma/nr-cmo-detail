@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>nr-cmo-detail</title>
+    <script>
+      // spa-github-pages redirect: preserves the deep-link path across
+      // GitHub Pages' 404 by encoding it into the query string, then
+      // index.html restores it via history.replaceState.
+      // segmentCount = number of path segments in the project base path
+      // ("/nr-cmo-detail/" => 1).
+      var segmentCount = 1;
+      var l = window.location;
+      l.replace(
+        l.protocol + "//" + l.hostname + (l.port ? ":" + l.port : "") +
+        l.pathname.split("/").slice(0, 1 + segmentCount).join("/") + "/?/" +
+        l.pathname.slice(1).split("/").slice(segmentCount).join("/").replace(/&/g, "~and~") +
+        (l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+        l.hash
+      );
+    </script>
+  </head>
+  <body></body>
+</html>

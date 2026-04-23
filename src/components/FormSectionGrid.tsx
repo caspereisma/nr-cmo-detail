@@ -16,12 +16,20 @@ import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import ValidationRuleEditor from "./ValidationRuleEditor";
 import DeadlinesSection from "./DeadlinesSection";
+import ContactsTable from "./ContactsTable";
+import { countries } from "../data/countries";
 
 interface FieldDef {
   label: string;
   value: string;
   type?: "text" | "select" | "boolean" | "date" | "checkboxGroup";
   options?: string[];
+  /**
+   * When true, the field is always read-only, even while the form is in edit mode.
+   * Used for core identity fields that should be locked after the initial CMO setup
+   * (e.g. CMO Name, Type, Home Territory).
+   */
+  lockedAfterSetup?: boolean;
 }
 
 interface Section {
@@ -36,16 +44,21 @@ const sections: Section[] = [
       {
         label: "CMO Name",
         value: "SCPP",
+        lockedAfterSetup: true,
       },
       {
         label: "Type",
         value: "RIGHTS_HOLDER",
         type: "select",
         options: ["PERFORMER", "RIGHTS_HOLDER"],
+        lockedAfterSetup: true,
       },
       {
         label: "Home Territory",
         value: "FR",
+        type: "select",
+        options: countries.map((c) => c.code),
+        lockedAfterSetup: true,
       },
       {
         label: "Exploitation Type",
@@ -96,24 +109,7 @@ const sections: Section[] = [
   },
   {
     title: "Contact Details",
-    fields: [
-      {
-        label: "Representative Name",
-        value: "",
-      },
-      {
-        label: "Contact Email",
-        value: "transfert@scpp.fr",
-      },
-      {
-        label: "Contact CMO Role",
-        value: "",
-      },
-      {
-        label: "Contact Phone",
-        value: "",
-      },
-    ],
+    fields: [],
   },
   {
     title: "Web & Address",
@@ -157,6 +153,11 @@ const sections: Section[] = [
 interface FormSectionGridProps {
   activeSectionIndex?: number | null;
   isEditing?: boolean;
+  /**
+   * "view" renders existing CMO data and locks core fields.
+   * "create" starts with empty values and unlocks the core fields for initial setup.
+   */
+  mode?: "view" | "create";
   onCmoNameChange?: (value: string) => void;
   onCmoTypeChange?: (value: string) => void;
 }
@@ -164,9 +165,11 @@ interface FormSectionGridProps {
 export default function FormSectionGrid({
   activeSectionIndex: _activeSectionIndex,
   isEditing = false,
+  mode = "view",
   onCmoNameChange,
   onCmoTypeChange,
 }: FormSectionGridProps) {
+  const isCreate = mode === "create";
   return (
     <Box sx={{ flex: 1, pt: 4, pb: 8, display: "flex", flexDirection: "column", gap: 5 }}>
       {sections.map((section) => (
@@ -184,6 +187,10 @@ export default function FormSectionGrid({
           <Box id={sectionId(section.title)} sx={{ gridColumn: "1 / -1" }}>
             <Typography variant="h5">{section.title}</Typography>
           </Box>
+
+          {section.title === "Contact Details" && (
+            <ContactsTable isEditing={isEditing} />
+          )}
 
           {section.title === "Deadlines" && (
             <Box sx={{ gridColumn: "1 / -1" }}>
@@ -226,22 +233,24 @@ export default function FormSectionGrid({
                 </Paper>
               </Box>
 
-              <Box sx={{ gridColumn: "1 / -1" }}>
-                <Paper
-                  variant="outlined"
-                  sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}
-                >
-                  <InsertDriveFileOutlinedIcon sx={{ color: "grey.600" }} />
-                  <Stack sx={{ flex: 1 }}>
-                    <Typography variant="body2" fontWeight={500}>
-                      scpp_export_template_v3.xlsx
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      24 KB &middot; Uploaded 14 Feb 2025 &middot; by Vitalii Antipa
-                    </Typography>
-                  </Stack>
-                </Paper>
-              </Box>
+              {!isCreate && (
+                <Box sx={{ gridColumn: "1 / -1" }}>
+                  <Paper
+                    variant="outlined"
+                    sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}
+                  >
+                    <InsertDriveFileOutlinedIcon sx={{ color: "grey.600" }} />
+                    <Stack sx={{ flex: 1 }}>
+                      <Typography variant="body2" fontWeight={500}>
+                        scpp_export_template_v3.xlsx
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        24 KB &middot; Uploaded 14 Feb 2025 &middot; by Vitalii Antipa
+                      </Typography>
+                    </Stack>
+                  </Paper>
+                </Box>
+              )}
 
               <TextField
                 label="Template Comments"
@@ -262,14 +271,21 @@ export default function FormSectionGrid({
           )}
 
           {section.fields.map((field) => {
+            // In create mode, `lockedAfterSetup` is overridden — initial setup is exactly
+            // when those core identity fields need to be editable.
+            const lockedNow = !isCreate && !!field.lockedAfterSetup;
+            const fieldEditable = isEditing && !lockedNow;
+            const defaultValue = isCreate ? "" : field.value;
+            const helperText = lockedNow ? "Locked after initial setup" : undefined;
+
             if (field.type === "boolean") {
               return (
                 <FormControlLabel
                   key={field.label}
                   control={
                     <Checkbox
-                      defaultChecked={field.value === "true"}
-                      disabled={!isEditing}
+                      defaultChecked={isCreate ? false : field.value === "true"}
+                      disabled={!fieldEditable}
                     />
                   }
                   label={field.label}
@@ -279,13 +295,13 @@ export default function FormSectionGrid({
             }
 
             if (field.type === "checkboxGroup") {
-              const selectedValues = field.value.split(",");
+              const selectedValues = isCreate ? [] : field.value.split(",");
               return (
                 <FormControl
                   key={field.label}
                   component="fieldset"
                   sx={{ gridColumn: "1 / -1" }}
-                  disabled={!isEditing}
+                  disabled={!fieldEditable}
                 >
                   <FormLabel component="legend" sx={field.label === "Export Options" ? { typography: "h6" } : undefined}>{field.label}</FormLabel>
                   <FormGroup row>
@@ -306,17 +322,20 @@ export default function FormSectionGrid({
             }
 
             if (field.type === "select") {
+              const isCountrySelect = field.label === "Home Territory";
               return (
                 <TextField
                   key={field.label}
                   select
                   label={field.label}
-                  defaultValue={field.value}
+                  defaultValue={defaultValue}
                   variant="standard"
                   size="small"
                   fullWidth
+                  disabled={!fieldEditable}
+                  helperText={helperText}
                   slotProps={{
-                    input: { readOnly: !isEditing },
+                    input: { readOnly: !fieldEditable },
                   }}
                   onChange={
                     field.label === "Type"
@@ -326,7 +345,7 @@ export default function FormSectionGrid({
                 >
                   {field.options?.map((opt) => (
                     <MenuItem key={opt} value={opt}>
-                      {opt}
+                      {isCountrySelect ? countryLabel(opt) : opt}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -339,12 +358,14 @@ export default function FormSectionGrid({
                   key={field.label}
                   label={field.label}
                   type="date"
-                  defaultValue={field.value}
+                  defaultValue={defaultValue}
                   variant="standard"
                   size="small"
                   fullWidth
+                  disabled={!fieldEditable}
+                  helperText={helperText}
                   slotProps={{
-                    input: { readOnly: !isEditing },
+                    input: { readOnly: !fieldEditable },
                     inputLabel: { shrink: true },
                   }}
                 />
@@ -355,12 +376,14 @@ export default function FormSectionGrid({
               <TextField
                 key={field.label}
                 label={field.label}
-                defaultValue={field.value}
+                defaultValue={defaultValue}
                 variant="standard"
                 size="small"
                 fullWidth
+                disabled={!fieldEditable}
+                helperText={helperText}
                 slotProps={{
-                  input: { readOnly: !isEditing },
+                  input: { readOnly: !fieldEditable },
                 }}
                 onChange={
                   field.label === "CMO Name"
@@ -378,6 +401,11 @@ export default function FormSectionGrid({
 
 function sectionId(title: string) {
   return title.toLowerCase().replace(/\s+&\s+/g, "-").replace(/\s+/g, "-");
+}
+
+function countryLabel(code: string): string {
+  const match = countries.find((c) => c.code === code);
+  return match ? `${match.name} (${match.code})` : code;
 }
 
 export { sections, sectionId };

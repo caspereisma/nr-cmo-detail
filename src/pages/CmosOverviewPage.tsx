@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Breadcrumbs,
+  Button,
   Chip,
   InputAdornment,
   Menu,
@@ -17,6 +19,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -27,10 +30,6 @@ import { nearestDeadline } from "../utils/deadlines";
 
 type Order = "asc" | "desc";
 type OrderBy = keyof Pick<CmoEntry, "name" | "homeTerritory" | "type"> | "nextDeadline" | "claimMethods";
-
-interface Props {
-  onNavigateToDetail: () => void;
-}
 
 function deadlineColor(daysUntil: number): string {
   if (daysUntil <= 31) return "error.main";
@@ -113,7 +112,8 @@ function FilterChip({ label, value, options, onSelect }: FilterChipProps) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function CmosOverviewPage({ onNavigateToDetail }: Props) {
+export default function CmosOverviewPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<OrderBy>("name");
@@ -214,25 +214,36 @@ export default function CmosOverviewPage({ onNavigateToDetail }: Props) {
 
           <Typography variant="h4">CMOs</Typography>
 
-          <TextField
-            size="small"
-            placeholder="Search CMOs"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(0);
-            }}
-            sx={{ width: 280 }}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
+            <TextField
+              size="small"
+              placeholder="Search CMOs"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(0);
+              }}
+              sx={{ width: 280 }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+
+            <Button
+              variant="contained"
+              size="medium"
+              startIcon={<AddIcon />}
+              onClick={() => navigate("/cmo-list/new")}
+            >
+              Add CMO
+            </Button>
+          </Box>
         </Box>
 
         {/* Filter row */}
@@ -307,7 +318,7 @@ export default function CmosOverviewPage({ onNavigateToDetail }: Props) {
                   <TableRow
                     key={row.id}
                     hover
-                    onClick={onNavigateToDetail}
+                    onClick={() => navigate(`/cmo-list/${row.id}`)}
                     sx={{ cursor: "pointer", "& td": { borderBottom: "none" } }}
                   >
                     <TableCell sx={BODY_CELL_SX}>{row.name}</TableCell>
